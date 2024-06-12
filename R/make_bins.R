@@ -7,7 +7,7 @@
 #'
 #' Description of the arguments for bin_type
 #'
-#' \itemize{
+#' \describe{
 #'   \item{\emph{frequency (fr)}}{ creates bins of equal content via quantiles. Wraps \code{\link[OneR]{bin}} with method "content". Similar to  \code{\link[dplyr]{ntile}}}
 #'   \item{\emph{width (wi)}}{ create bins of equal numeric width. Wraps \code{\link[OneR]{bin}} with method "length"}
 #'   \item{\emph{kmeans (km)}}{ create bins using 1-dimensional kmeans. Wraps \code{\link[OneR]{bin}} with method "clusters"}
@@ -118,7 +118,7 @@ if(any(bin_type %in% c("xgboost", "woe", "logreg"))){
                    mdlp         = "md"
     )
 
-    my_form <- .data %>% tidy_formula(!!target1, tidyselect::any_of(bin_cols_string))
+    my_form <- .data %>% autostats::tidy_formula(!!target1, tidyselect::any_of(bin_cols_string))
 
 
     .data %>%
@@ -172,7 +172,7 @@ if(any(bin_type %in% c("xgboost", "woe", "logreg"))){
     rec1 <- recipes::recipe(myform, data = .data)
 
     if(!use_cart){
-      rec2 <- embed::step_discretize_xgb(rec1, tidyselect::any_of(bin_cols_string), outcome = outcome1, num_breaks = n_bins, ..., verbose = 0)
+      rec2 <- embed::step_discretize_xgb(rec1, tidyselect::any_of(bin_cols_string), outcome = outcome1, num_breaks = n_bins, ...)
       abbv <- "xg"
     } else{
       rec2 <- embed::step_discretize_cart(rec1, tidyselect::any_of(bin_cols_string), outcome = outcome1, ...)
@@ -196,7 +196,7 @@ if(any(bin_type %in% c("xgboost", "woe", "logreg"))){
 if("logreg" %in% bin_type){
 
   .data %>% dplyr::pull(!!target1) %>% dplyr::n_distinct() -> n_levels
-  my_form <- .data %>% tidy_formula(!!target1, tidyselect::any_of(bin_cols_string))
+  my_form <- .data %>% autostats::tidy_formula(!!target1, tidyselect::any_of(bin_cols_string))
   OneR::optbin(my_form, .data) -> optbins
   optbins %>% dplyr::select(-!!target1) %>% dplyr::rename_with(.fn = ~stringr::str_c(., "_", "lr", n_levels)) -> opt_bins
   .data %>% dplyr::bind_cols(opt_bins) -> .data
